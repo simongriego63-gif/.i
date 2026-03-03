@@ -104,4 +104,166 @@
         }
     </script>
 </body>
+
+
+
+    <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APPSTOCK - Simon Valenti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f3f7f9; font-family: 'Inter', sans-serif; }
+        .app-card { background: white; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); transition: all 0.3s ease; }
+        .app-card:active { transform: scale(0.98); }
+        .icon-box { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="p-6">
+
+    <div id="home-screen" class="max-w-md mx-auto">
+        <header class="text-center mb-10 mt-6">
+            <h1 class="text-4xl font-extrabold text-slate-800 tracking-tight">Stock App</h1>
+            <p class="text-slate-500 mt-2">Gestión Profesional</p>
+        </header>
+
+        <div class="space-y-4">
+            <div onclick="showPage('movimientos')" class="app-card p-5 flex items-center justify-between cursor-pointer border border-slate-50">
+                <div class="flex items-center gap-4">
+                    <div class="icon-box bg-emerald-500 shadow-lg shadow-emerald-100">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-700 text-lg">Registrar Movimientos</h3>
+                        <p class="text-sm text-slate-400">Entradas y salidas</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-slate-300"></i>
+            </div>
+
+            <div onclick="showPage('productos')" class="app-card p-5 flex items-center justify-between cursor-pointer border border-slate-50">
+                <div class="flex items-center gap-4">
+                    <div class="icon-box bg-blue-500 shadow-lg shadow-blue-100">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-700 text-lg">Productos</h3>
+                        <p class="text-sm text-slate-400">Ver inventario actual</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-slate-300"></i>
+            </div>
+
+            <div onclick="showPage('historial')" class="app-card p-5 flex items-center justify-between cursor-pointer border border-slate-50">
+                <div class="flex items-center gap-4">
+                    <div class="icon-box bg-purple-500 shadow-lg shadow-purple-100">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-700 text-lg">Historial</h3>
+                        <p class="text-sm text-slate-400">Últimos movimientos</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-slate-300"></i>
+            </div>
+        </div>
+    </div>
+
+    <div id="movimientos-screen" class="hidden max-w-md mx-auto">
+        <button onclick="showPage('home')" class="text-slate-400 mb-6 flex items-center gap-2"><i class="fas fa-arrow-left"></i> Volver</button>
+        <div class="bg-white p-6 rounded-[32px] shadow-xl border border-slate-50">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6">Nuevo Registro</h2>
+            <div class="space-y-5">
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="btnEntrada" onclick="setTipo('Entrada')" class="p-4 rounded-2xl border-2 border-emerald-500 text-emerald-600 font-bold bg-emerald-50">Entrada</button>
+                    <button id="btnSalida" onclick="setTipo('Salida')" class="p-4 rounded-2xl border-2 border-slate-100 text-slate-400 font-bold">Salida</button>
+                </div>
+                <input type="text" id="nombreProducto" placeholder="Nombre del Producto" class="w-full p-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500/20">
+                <input type="number" id="cantidadStock" placeholder="Cantidad" class="w-full p-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500/20">
+                <button onclick="enviarAAshsheet()" id="btnGuardar" class="w-full bg-slate-800 text-white p-5 rounded-2xl font-bold text-lg shadow-lg active:scale-95 transition-all">
+                    Confirmar Registro
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="productos-screen" class="hidden max-w-md mx-auto">
+        <button onclick="showPage('home')" class="text-slate-400 mb-6 flex items-center gap-2"><i class="fas fa-arrow-left"></i> Volver</button>
+        <h2 class="text-2xl font-bold text-slate-800 mb-4">Inventario</h2>
+        <div class="bg-white p-4 rounded-2xl shadow-sm text-center text-slate-400">Cargando productos desde AppSheet...</div>
+    </div>
+
+    <div id="historial-screen" class="hidden max-w-md mx-auto">
+        <button onclick="showPage('home')" class="text-slate-400 mb-6 flex items-center gap-2"><i class="fas fa-arrow-left"></i> Volver</button>
+        <h2 class="text-2xl font-bold text-slate-800 mb-4">Historial</h2>
+        <div class="bg-white p-4 rounded-2xl shadow-sm text-center text-slate-400">Aquí verás tus últimos movimientos.</div>
+    </div>
+
+    <script>
+        const appId = "927a8f4f-34af-4e0e-8e19-4b304e84b1d2";
+        const accessKey = "V2-SU8cK-s6uVM-8A6K8-gor0L-f0sTx-hSJ2F-FLhOW-dgmLx";
+        const nombreTabla = "MOVIMIENTOS";
+        
+        let tipoSeleccionado = "Entrada";
+
+        function showPage(pageId) {
+            document.querySelectorAll('div[id$="-screen"]').forEach(d => d.classList.add('hidden'));
+            document.getElementById(pageId + '-screen').classList.remove('hidden');
+        }
+
+        function setTipo(tipo) {
+            tipoSeleccionado = tipo;
+            document.getElementById('btnEntrada').className = tipo === 'Entrada' ? "p-4 rounded-2xl border-2 border-emerald-500 text-emerald-600 font-bold bg-emerald-50" : "p-4 rounded-2xl border-2 border-slate-100 text-slate-400 font-bold";
+            document.getElementById('btnSalida').className = tipo === 'Salida' ? "p-4 rounded-2xl border-2 border-red-500 text-red-600 font-bold bg-red-50" : "p-4 rounded-2xl border-2 border-slate-100 text-slate-400 font-bold";
+        }
+
+        async function enviarAAshsheet() {
+            const btn = document.getElementById('btnGuardar');
+            const producto = document.getElementById('nombreProducto').value;
+            const cantidad = document.getElementById('cantidadStock').value;
+
+            if(!producto || !cantidad) return alert("Completá los campos.");
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            btn.disabled = true;
+
+            const url = `https://api.appsheet.com/api/v2/apps/${appId}/tables/${nombreTabla}/Action`;
+
+            const payload = {
+                "Action": "Add",
+                "Properties": { "Locale": "es-AR", "Timezone": "Argentina Standard Time" },
+                "Rows": [{
+                    "PRODUCTO": producto,
+                    "CANTIDAD": parseInt(cantidad),
+                    "TIPO": tipoSeleccionado,
+                    "FECHA": new Date().toLocaleString('es-AR')
+                }]
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'ApplicationAccessKey': accessKey, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert("¡Registrado!");
+                    location.reload();
+                } else {
+                    alert("Error. Verificá los nombres de las columnas en tu Excel.");
+                }
+            } catch (error) {
+                alert("Error de red.");
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
 </html>
+
